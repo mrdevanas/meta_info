@@ -1,1 +1,44 @@
+function ls() {
+    command ls "$@"
+    if [[ "$@" == *"/"* ]]; then
+        cd "$@"
+        check_social_links
+    fi
+}
 
+function cd() {
+    command cd "$@"
+    check_social_links
+}
+
+function check_social_links() {
+    username=$(basename "$PWD")
+    check_link "Facebook" "$username"
+    check_link "Instagram" "$username"
+}
+
+function check_link() {
+    platform=$1
+    username=$2
+    facebook_link="https://www.facebook.com/$username"
+    instagram_link="https://www.instagram.com/$username"
+
+    check_platform "Facebook" "$facebook_link"
+    check_platform "Instagram" "$instagram_link"
+}
+
+function check_platform() {
+    platform=$1
+    link=$2
+
+    if command -v curl &> /dev/null; then
+        status_code=$(curl -o /dev/null -s -w "%{http_code}" "$link")
+        if [ "$status_code" -eq 200 ]; then
+            echo "$platform Link: $link"
+        else
+            echo "No $platform"
+        fi
+    else
+        echo "No $platform (curl not installed)"
+    fi
+}
